@@ -1,0 +1,9 @@
+# Main python code
+
+# The code is part of the SONATA (Simulation and Optimization of Novel Aero-elastic Turbine Architectures) framework, 
+# specifically dealing with wind turbine blade structural analysis and modeling.
+
+# 1. Blade Modeling and Analysis
+# 2. Structural Analysis
+# 3. Visualisation
+# 4. OpenFAST integration
