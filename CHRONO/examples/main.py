@@ -3,8 +3,8 @@ import time
 
 # Import from our modules
 from beam_properties import create_beam_model, n_nodes, E, Iyy, beam_length, b, h, s
-from stiffness_matrix_assembly_v2 import assemble_global_stiffness_matrix 
-from mass_matrix_assembly_v2 import assemble_global_mass_matrix
+from stiffness_matrix_assembly import assemble_global_stiffness_matrix 
+from mass_matrix_assembly import assemble_global_mass_matrix
 from analysis import solve_static_analysis, modal_analysis, extract_displacements, create_force_vector
 from visualization import plot_deformed_shape, plot_mode_shapes
 
