@@ -9,8 +9,6 @@ G = bp.G
 
 def calculate_shape_functions(x, L):
     """Calculate the shape function matrix N for a beam element.
-    Uses linear shape functions for u, θx, θy, θz.
-    Uses cubic Hermite shape functions for v, w.
 
     Args:
         x: position along the element (local coordinate, 0 <= x <= L)
@@ -21,35 +19,25 @@ def calculate_shape_functions(x, L):
     N_matrix = np.zeros((6, 12))
     xi = x / L
 
-    # Linear shape functions (N1, N2)
+    # Linear shape functions (N1, N2) for axial and rotational DOFs
     N1_val = 1 - xi
     N2_val = xi
 
-    # Cubic Hermite shape functions (H1, H2, H3, H4)
+    # Cubic Hermite shape functions (H1, H2, H3, H4) for transverse displacements
     H1_val = 1 - 3 * xi**2 + 2 * xi**3       # for v1, w1
-    H2_val = L * (xi - 2 * xi**2 + xi**3)    # for θz1, θy1 (related to v, w)
     H3_val = 3 * xi**2 - 2 * xi**3           # for v2, w2
-    H4_val = L * (-xi**2 + xi**3)          # for θz2, θy2 (related to v, w)
-
-    # DOF: [u, v, w, θx, θy, θz]
-    # Node 1 DOFs: u1, v1, w1, θx1, θy1, θz1
-    # Node 2 DOFs: u2, v2, w2, θx2, θy2, θz2
-
+    
     # Row 0: u (axial displacement)
     N_matrix[0, 0] = N1_val  # u1
     N_matrix[0, 6] = N2_val  # u2
 
     # Row 1: v (transverse displacement in y)
     N_matrix[1, 1] = H1_val  # v1
-    N_matrix[1, 5] = H2_val  # θz1 (rotation that influences v)
     N_matrix[1, 7] = H3_val  # v2
-    N_matrix[1, 11] = H4_val # θz2 (rotation that influences v)
 
     # Row 2: w (transverse displacement in z)
     N_matrix[2, 2] = H1_val  # w1
-    N_matrix[2, 4] = H2_val  # θy1 (rotation that influences w)
     N_matrix[2, 8] = H3_val  # w2
-    N_matrix[2, 10] = H4_val # θy2 (rotation that influences w)
 
     # Row 3: θx (torsional rotation)
     N_matrix[3, 3] = N1_val  # θx1
@@ -59,7 +47,7 @@ def calculate_shape_functions(x, L):
     N_matrix[4, 4] = N1_val  # θy1
     N_matrix[4, 10] = N2_val # θy2
 
-    # Row 5: θz (bending rotation about z - independent field)
+    # Row 5: θz (bending rotation about z)
     N_matrix[5, 5] = N1_val  # θz1
     N_matrix[5, 11] = N2_val # θz2
 
