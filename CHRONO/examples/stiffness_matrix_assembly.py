@@ -45,86 +45,138 @@ def calculate_element_stiffness_matrix(nodes_stiffness, L):
     
     return K_element
 
+def extract_coupling_factors(sonata_matrix):
+    """Extract coupling factors from Sonata matrix"""
+    coupling_factors = {}
+    
+    # Axial-shear coupling (terms [0,4] and [4,0])
+    coupling_factors['axial_shear'] = sonata_matrix[0,4] / sonata_matrix[0,0]
+    
+    # Bending mode coupling (terms [1,2] and [2,1])
+    coupling_factors['bending_coupling'] = sonata_matrix[1,2] / sonata_matrix[1,1]
+    
+    # Bending-shear coupling (terms [1,3] and [3,1])
+    coupling_factors['bending_shear'] = sonata_matrix[1,3] / sonata_matrix[1,1]
+    
+    # Shear-torsion coupling (terms [4,5] and [5,4])
+    coupling_factors['shear_torsion'] = sonata_matrix[4,5] / sonata_matrix[4,4]
+    
+    return coupling_factors
+
 def calculate_B_matrix(x, L):
-    """Calculates the strain-displacement matrix B for a Timoshenko beam element
-    using cubic Hermite functions for transverse displacements and linear functions for rotations.
+    """Calculates the strain-displacement matrix B for a beam element
+    using the strain ordering expected by Sonata
+    
     Args:
         x: position along the element (local coordinate, 0 <= x <= L)
         L: length of the element
+        
     Returns:
-        B: 6x12 strain-displacement matrix
+        B: 6x12 strain-displacement matrix with Sonata's strain ordering
     """
     B = np.zeros((6, 12))
-
     # Normalized coordinate
     xi = x / L
-
-    # --- Linear Shape Functions (for u, θx, θy, θz) ---
-    # N1(xi) = 1 - xi, N2(xi) = xi
-    # dN1/dx = -1/L, dN2/dx = 1/L
+    
+    # Basic shape functions
     N1_val = 1 - xi
     N2_val = xi
     dN1dx = -1/L
-    dN2dx =  1/L
-
-    # --- Cubic Hermite Shape Functions (for v, w) ---
+    dN2dx = 1/L
+    
+    # Cubic Hermite shape functions
     H1 = 1 - 3 * xi**2 + 2 * xi**3
     H2 = L * (xi - 2 * xi**2 + xi**3)
     H3 = 3 * xi**2 - 2 * xi**3
     H4 = L * (-xi**2 + xi**3)
-
-    # First derivatives w.r.t. x
+    
+    # Derivatives
     dH1dx = (-6 * xi + 6 * xi**2) / L
     dH2dx = (1 - 4 * xi + 3 * xi**2)
     dH3dx = (6 * xi - 6 * xi**2) / L
     dH4dx = (-2 * xi + 3 * xi**2)
-
-    # Second derivatives w.r.t. x (Not used for Timoshenko B matrix directly)
-    # d2H1dx2 = (-6 + 12 * xi) / L**2
-    # d2H2dx2 = (-4 + 6 * xi) / L
-    # d2H3dx2 = (6 - 12 * xi) / L**2
-    # d2H4dx2 = (-2 + 6 * xi) / L
-
-    # DOF ordering:
-    # Node 1: [u1, v1, w1, θx1, θy1, θz1]
-    # Node 2: [u2, v2, w2, θx2, θy2, θz2]
-
-    # Strain/curvature vector: [εx, κz, κy, γxy, γxz, κx]^T
-
-    # 0. Axial strain: εx = du/dx (Linear N)
+    
+    # Based on the reordering observed in Sonata matrix, I'll reorder the strains
+    # Assume Sonata strain order: [εx, γxy, γxz, κx, κy, κz]
+    
+    # 0. Axial strain: εx = du/dx (same as original)
     B[0, 0] = dN1dx  # u1
     B[0, 6] = dN2dx  # u2
-
-    # 1. Bending curvature about z: κz = dθz/dx (Linear N for θz)
-    B[1, 5] = dN1dx  # θz1
-    B[1, 11] = dN2dx # θz2
-
-    # 2. Bending curvature about y: κy = dθy/dx (Linear N for θy)
-    B[2, 4] = dN1dx  # θy1
-    B[2, 10] = dN2dx # θy2
-
-    # 3. Shear strain γxy = dv/dx - θz (Cubic H for dv/dx, Linear N for θz)
-    B[3, 1] = dH1dx   # v1 contribution to dv/dx
-    B[3, 5] = dH2dx   # θz1 contribution to dv/dx (This is the H term for v related to θz1)
-    B[3, 7] = dH3dx   # v2 contribution to dv/dx
-    B[3, 11] = dH4dx  # θz2 contribution to dv/dx (This is the H term for v related to θz2)
-    # Subtract θz interpolated linearly
-    B[3, 5] -= N1_val # θz1 (contribution from -θz term)
-    B[3, 11] -= N2_val # θz2 (contribution from -θz term)
-
-    # 4. Shear strain γxz = dw/dx - θy (Cubic H for dw/dx, Linear N for θy)
-    B[4, 2] = dH1dx   # w1 contribution to dw/dx
-    B[4, 4] = dH2dx   # θy1 contribution to dw/dx (This is the H term for w related to θy1)
-    B[4, 8] = dH3dx   # w2 contribution to dw/dx
-    B[4, 10] = dH4dx  # θy2 contribution to dw/dx (This is the H term for w related to θy2)
-    # Subtract θy interpolated linearly
-    B[4, 4] -= N1_val # θy1 (contribution from -θy term)
-    B[4, 10] -= N2_val # θy2 (contribution from -θy term)
-
-    # 5. Torsion κx = dθx/dx (Linear N for θx)
-    B[5, 3] = dN1dx  # θx1
-    B[5, 9] = dN2dx  # θx2
-
+    
+    # 1. Shear strain γxy = dv/dx - θz (was index 3 in original)
+    B[1, 1] = dH1dx   # v1
+    B[1, 5] = dH2dx - N1_val  # θz1
+    B[1, 7] = dH3dx   # v2
+    B[1, 11] = dH4dx - N2_val  # θz2
+    
+    # 2. Shear strain γxz = dw/dx - θy (was index 4 in original)
+    B[2, 2] = dH1dx   # w1
+    B[2, 4] = dH2dx - N1_val  # θy1
+    B[2, 8] = dH3dx   # w2
+    B[2, 10] = dH4dx - N2_val  # θy2
+    
+    # 3. Torsion κx = dθx/dx (was index 5 in original)
+    B[3, 3] = dN1dx  # θx1
+    B[3, 9] = dN2dx  # θx2
+    
+    # 4. Bending curvature about y: κy = dθy/dx (was index 2 in original)
+    B[4, 4] = dN1dx  # θy1
+    B[4, 10] = dN2dx # θy2
+    
+    # 5. Bending curvature about z: κz = dθz/dx (was index 1 in original)
+    B[5, 5] = dN1dx  # θz1
+    B[5, 11] = dN2dx # θz2
+    
+    # Add coupling terms based on Sonata matrix structure
+    
+    # 1. Axial-shear coupling (terms [0,4] and [4,0])
+    # This represents warping effects
+    coupling_factors = extract_coupling_factors(bp.K1)
+    cf_axial_shear = coupling_factors.get('axial_shear', 0)
+    if cf_axial_shear != 0:
+        # Axial strain affected by θy rotation
+        B[0, 4] += cf_axial_shear * N1_val  # θy1
+        B[0, 10] += cf_axial_shear * N2_val  # θy2
+        
+        # Shear strain γxz affected by axial displacement
+        B[4, 0] += cf_axial_shear * N1_val  # u1
+        B[4, 6] += cf_axial_shear * N2_val  # u2
+    
+    # 2. Bending mode coupling (terms [1,2] and [2,1])
+    # This represents asymmetry in the cross-section
+    cf_bending = coupling_factors.get('bending_coupling', 0)
+    if cf_bending != 0:
+        # Bending about z affected by θy rotation
+        B[1, 4] += cf_bending * N1_val  # θy1
+        B[1, 10] += cf_bending * N2_val  # θy2
+        
+        # Bending about y affected by θz rotation
+        B[2, 5] += cf_bending * N1_val  # θz1
+        B[2, 11] += cf_bending * N2_val  # θz2
+    
+    # 3. Bending-shear coupling (terms [1,3], [3,1], etc.)
+    cf_bend_shear = coupling_factors.get('bending_shear', 0)
+    if cf_bend_shear != 0:
+        # Bending curvature affected by w displacement
+        B[1, 2] += cf_bend_shear * dH1dx  # w1
+        B[1, 8] += cf_bend_shear * dH3dx  # w2
+        
+        # Shear strain affected by bending rotation
+        B[3, 4] += cf_bend_shear * dN1dx  # θy1
+        B[3, 10] += cf_bend_shear * dN2dx  # θy2
+    
+    # 4. Shear-torsion coupling (terms [4,5] and [5,4])
+    # This represents non-coincident shear center
+    cf_shear_torsion = coupling_factors.get('shear_torsion', 0)
+    if cf_shear_torsion != 0:
+        # Shear γxz affected by θx rotation
+        B[4, 3] += cf_shear_torsion * N1_val  # θx1
+        B[4, 9] += cf_shear_torsion * N2_val  # θx2
+        
+        # Torsion κx affected by θy rotation
+        B[5, 4] += cf_shear_torsion * N1_val  # θy1
+        B[5, 10] += cf_shear_torsion * N2_val  # θy2
+    
     return B
 
 
