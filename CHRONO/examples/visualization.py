@@ -39,20 +39,30 @@ def plot_deformed_shape(nodes, displacements, section_breaks, scale_factor=1):
     for sb in section_breaks:
         plt.axvline(x=sb, color='g', linestyle='--', alpha=0.5)
     
-    plt.grid(True)
-    plt.xlabel('X position (m)')
-    plt.ylabel('Y position (m)')
-    plt.title('Beam Deformation under Vertical Load')
-    plt.legend()
+    # == plotting options for steel box beam == #
+    #plt.grid(True)
+    #plt.xlabel('X position (m)')
+    #plt.ylabel('Y position (m)')
+    #plt.title('Beam Deformation under Vertical Load')
+    #plt.legend()
     
+    #plt.figure(figsize=(12, 6))
+    #plt.plot(x_orig, x_disp, label='X displacement')
+    #plt.plot(x_orig, y_disp, label='Y displacement')
+    #plt.plot(x_orig, z_disp, label='Z displacement')
+    #plt.ylabel('Tip displacement (mm)')
+    #plt.title('Displacement along the beam')
+    #plt.grid(True)
+    #plt.legend()
+    
+    # == plotting options for composite box beam == #
+    bending_slope = np.array([disp["rz"] for disp in displacements])  #hide for steel beam
     plt.figure(figsize=(12, 6))
-    plt.plot(x_orig, x_disp, label='X displacement')
-    plt.plot(x_orig, y_disp, label='Y displacement')
-    plt.plot(x_orig, z_disp, label='Z displacement')
+    plt.plot(x_orig, bending_slope, label='Bending slope (rz)')
+    plt.xlabel('X position (mm)')
+    plt.ylabel('Bending slope (rad)')
+    plt.title('Bending slope along the beam')
     plt.grid(True)
-    plt.xlabel('X position (m)')
-    plt.ylabel('Displacement (m)')
-    plt.title('Displacements along the beam')
     plt.legend()
     
     plt.show()
