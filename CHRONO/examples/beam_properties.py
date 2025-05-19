@@ -3,28 +3,6 @@ import numpy as np
 # Beam parameters
 n_el = 100
 n_nodes = n_el + 1
-beam_length = 2000   # mm
-b = 100              # mm
-h = 100              # mm
-s = 10               # mm
-b_int = b-2*s        # mm
-h_int = h-2*s        # mm
-A = b * h -((b-2*s)*(h-2*s)) # mm^2
-Iyy = (b * h**3 - (b_int)*(h_int)**3) / 12 # mm^4 
-Izz = (b**3 * h - (b_int)**3*(h_int)) / 12 # mm^4 
-
-rho = 7800e-6             # density [kg/mm^3]
-sectional_mass = rho * A
-E = 0.210e6               # Young Modulus SI kg,mm
-nu = 0.3                  # Poisson's ratio
-G = E /(2*(1+nu))         # Shear ratio
-Ixx = Iyy + Izz
-
-element_length = beamimport numpy as np
-
-# Beam parameters
-n_el = 100
-n_nodes = n_el + 1
 from_inches_to_mm = 25.4
 
 steel_box_beam = False
