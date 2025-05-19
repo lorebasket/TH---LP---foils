@@ -35,8 +35,8 @@ def main():
     M_global = assemble_global_mass_matrix()
     print(f"Mass matrix assembled in {time.time() - start_time:.3f} seconds")
     
-    # Create force vector (100N downward at the last node)
-    force_vector = create_force_vector(-100.0)
+    # Create force vector (10N downward at the last node)
+    force_vector = create_force_vector(-10.0)
     
     # Solve static analysis
     print("\nSolving static analysis...")
@@ -63,7 +63,7 @@ def main():
     plot_deformed_shape(nodes, displacements, section_breaks)
     
     # Calculate theoretical tip displacement (Euler-Bernoulli)
-    tip_force = 100.0  # Magnitude of force
+    tip_force = 10.0  # Magnitude of force
     L = beam_length
     I = Iyy
     tip_theoretical_EB = tip_force * L**3 / (3 * E * I)
