@@ -1,0 +1,24 @@
+# Files generati da LaTeX
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fls
+*.fdb_latexmk
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+_minted-*
+
+# Site build (generato dalla CI)
+site/
+
+# Editor / OS
+.vscode/
+.DS_Store
