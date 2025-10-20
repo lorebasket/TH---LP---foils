@@ -21,7 +21,7 @@ jobs:
       - name: Compile LaTeX thesis
         uses: xu-cheng/latex-action@v2
         with:
-          root_file: thesis/thesis.tex    # percorso del file principale (modifica se serve)
+          root_file: 00_drafting/thesis.tex    # percorso del file principale (modifica se serve)
           # compiler: xelatex            # <-- decommenta se il template usa XeLaTeX / LuaLaTeX
           # latexmk_args: -pdf -shell-escape  # <-- decommenta se usi minted o shell-escape
 
