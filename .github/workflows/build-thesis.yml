@@ -28,11 +28,11 @@ jobs:
       - name: Prepare site directory with thesis PDF
         run: |
           mkdir -p site/thesis
-          ROOTNAME=$(basename thesis/thesis.tex .tex)
+          ROOTNAME=$(basename 00_drafting//thesis.tex .tex)
           if [ -f "${ROOTNAME}.pdf" ]; then
-            mv "${ROOTNAME}.pdf" site/thesis/main.pdf
+            mv "${ROOTNAME}.pdf" 01_site/thesis/main.pdf
           elif [ -f main.pdf ]; then
-            mv main.pdf site/thesis/main.pdf
+            mv main.pdf 01_site/thesis/main.pdf
           else
             echo "PDF della tesi non trovato; la compilazione potrebbe essere fallita."
             ls -la
@@ -42,7 +42,7 @@ jobs:
       - name: Create a simple index linking the PDF
         run: |
           mkdir -p site
-          cat > site/index.html <<'HTML'
+          cat > 01_site/index.html <<'HTML'
           <!doctype html>
           <html>
             <head><meta charset="utf-8"><title>Tesi - Site</title></head>
