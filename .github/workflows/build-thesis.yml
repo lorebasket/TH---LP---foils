@@ -27,7 +27,7 @@ jobs:
 
       - name: Prepare site directory with thesis PDF
         run: |
-          mkdir -p site/thesis
+          mkdir -p 01_site/thesis
           ROOTNAME=$(basename 00_drafting//thesis.tex .tex)
           if [ -f "${ROOTNAME}.pdf" ]; then
             mv "${ROOTNAME}.pdf" 01_site/thesis/main.pdf
