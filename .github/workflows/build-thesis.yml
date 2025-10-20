@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Compile LaTeX thesis
-        uses: xu-cheng/latex-action@v2
+        uses: xu-cheng/latex-action@v4
         with:
           root_file: 00_drafting/thesis.tex    # percorso del file principale (modifica se serve)
           # compiler: xelatex            # <-- decommenta se il template usa XeLaTeX / LuaLaTeX
@@ -56,9 +56,9 @@ jobs:
           HTML
 
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: site
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
