@@ -22,20 +22,20 @@
 \setcounter{secnumdepth}{4}
 \setcounter{tocdepth}{4}
 
-\input{common/packages}
+\input{00_drafting/common/packages}
 
-\input{common/package_config}
+\input{00_drafting/common/package_config}
 
-\input{common/new_commands}
+\input{00_drafting/common/new_commands}
 
-\input{common/thesis_info.tex}
+\input{00_drafting/common/thesis_info.tex}
 
-\input{common/font_config.tex}
+\input{00_drafting/common/font_config.tex}
 
-\addbibresource{bibliography.bib}
+\addbibresource{00_drafting/bibliography.bib}
 
 % to load the glossaries, not needed if using bib2gls
-\input{glossaries.tex}
+\input{00_drafting/glossaries.tex}
 \makeglossaries
 
 \pagestyle{fancy}
@@ -49,7 +49,7 @@
 
 \begin{document}
 
-\input{common/config}
+\input{00_drafting/common/config}
 
 %\input{common/toptesi_config}
 
@@ -58,7 +58,7 @@
 % while the custom-made frontpage can be used as hard-cover
 % use pdfjoin or pdfseparate to extract or put together the pages if needed
 %\frontespizio* % without star the logo is on top
-\input{common/frontpage.tex} % custom frontpage
+\input{00_drafting/common/frontpage.tex} % custom frontpage
 %\retrofrontespizio
 % insert text for the back of the front page
 % if you insert any remove the following \paginavuota
@@ -85,14 +85,14 @@
 
 \pagenumbering{Roman}
 %\sommario
-\input{content/abstract}
+\input{00_drafting/content/abstract}
 
 \phantom{0}
 \cleardoublepage
 \thispagestyle{empty}
 
 %\ringraziamenti
-\input{content/acknowledgements}
+\input{00_drafting/content/acknowledgements}
 
 \tableofcontents
 
@@ -113,7 +113,7 @@
 
 % also list of symbols here if needed
 
-\input{common/post_summary_config.tex}
+\input{00_drafting/common/post_summary_config.tex}
 
 %\mainmatter
 
@@ -125,13 +125,13 @@
 \paginavuota
 \pagenumbering{arabic}
 
-\input{content/chapters}
+\input{00_drafting/content/chapters}
 
 % \paginavuota % it works even without stile=classica
 
 \appendix
-\input{content/appendixA}
-\input{content/appendixB}
+\input{00_drafting/content/appendixA}
+\input{00_drafting/content/appendixB}
 
 % endnotes here if needed
 
@@ -141,6 +141,6 @@
 
 
 \Dedications
-\input{dedications}
+\input{00_drafting/dedications}
 
 \end{document}
