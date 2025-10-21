@@ -17,78 +17,69 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      
       - name: Compile LaTeX thesis
         uses: xu-cheng/latex-action@v4
         with:
-          root_file: 00_drafting/thesis.tex    # percorso del file principale (modifica se serve)
-          # compiler: xelatex            # <-- decommenta se il template usa XeLaTeX / LuaLaTeX
-          # latexmk_args: -pdf -shell-escape  # <-- decommenta se usi minted o shell-escape
-
-      - name: Prepare site directory with thesis PDF
+          root_file: 00_drafting/thesis.tex
+          # compiler: xelatex            # Uncomment if you need XeLaTeX
+          # args: -shell-escape          # Uncomment if you use minted or need shell-escape
+      
+      - name: Print LaTeX log (for debugging)
+        if: always()
         run: |
-          mkdir -p 01_site/thesis
-          ROOTNAME=$(basename 00_drafting//thesis.tex .tex)
-          if [ -f "${ROOTNAME}.pdf" ]; then
-            mv "${ROOTNAME}.pdf" 01_site/thesis/main.pdf
-          elif [ -f main.pdf ]; then
-            mv main.pdf 01_site/thesis/main.pdf
+          echo "=== LaTeX Compilation Log ==="
+          if [ -f "00_drafting/thesis.log" ]; then
+            cat 00_drafting/thesis.log
           else
-            echo "PDF della tesi non trovato; la compilazione potrebbe essere fallita."
-            ls -la
-            exit 1
+            echo "Log file not found at 00_drafting/thesis.log"
+            ls -la 00_drafting/ || true
           fi
-
+      
       - name: Prepare site directory with thesis PDF
         run: |
           mkdir -p 01_site/thesis
-          # Path to the latex root file used above in the Compile step
-          ROOTFILE="00_drafting/thesis.tex"
-          ROOTDIR=$(dirname "$ROOTFILE")
-          ROOTNAME=$(basename "$ROOTFILE" .tex)
-          PDF_PATH="$ROOTDIR/$ROOTNAME.pdf"
+          
+          # The PDF should be in the same directory as the .tex file
+          PDF_PATH="00_drafting/thesis.pdf"
+          
           echo "Looking for PDF at: $PDF_PATH"
+          
           if [ -f "$PDF_PATH" ]; then
+            echo "✓ PDF found! Moving to 01_site/thesis/main.pdf"
             mv "$PDF_PATH" 01_site/thesis/main.pdf
-          elif [ -f "${ROOTNAME}.pdf" ]; then
-            # fallback if compilation produced thesis.pdf at repo root
-            mv "${ROOTNAME}.pdf" 01_site/thesis/main.pdf
-          elif [ -f main.pdf ]; then
-            # another fallback used previously
-            mv main.pdf 01_site/thesis/main.pdf
           else
-            echo "PDF della tesi non trovato; la compilazione potrebbe essere fallita."
+            echo "✗ PDF not found at expected location"
+            echo "Listing 00_drafting directory:"
+            ls -la 00_drafting/
+            echo ""
             echo "Listing repo root:"
             ls -la
-            echo "Listing $ROOTDIR:"
-            ls -la "$ROOTDIR" || true
             exit 1
           fi
-
-          
+      
       - name: Create a simple index linking the PDF
         run: |
-          mkdir -p 01_site
           cat > 01_site/index.html <<'HTML'
           <!doctype html>
           <html>
-            <head><meta charset="utf-8"><title>Tesi - Site</title></head>
+            <head>
+              <meta charset="utf-8">
+              <title>Thesis PDF</title>
+            </head>
             <body>
-              <h1>Tesi</h1>
+              <h1>Thesis</h1>
               <ul>
-                <li><a href="thesis/main.pdf" target="_blank">Scarica la tesi (PDF)</a></li>
+                <li><a href="thesis/main.pdf" target="_blank">Download Thesis (PDF)</a></li>
               </ul>
             </body>
           </html>
           HTML
-
+      
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: 01_site
-
+      
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
-
-      - name: Print LaTeX log
-        run: cat 00_drafting/thesis.log || true
