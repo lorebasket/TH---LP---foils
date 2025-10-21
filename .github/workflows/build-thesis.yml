@@ -39,6 +39,33 @@ jobs:
             exit 1
           fi
 
+      - name: Prepare site directory with thesis PDF
+        run: |
+          mkdir -p 01_site/thesis
+          # Path to the latex root file used above in the Compile step
+          ROOTFILE="00_drafting/thesis.tex"
+          ROOTDIR=$(dirname "$ROOTFILE")
+          ROOTNAME=$(basename "$ROOTFILE" .tex)
+          PDF_PATH="$ROOTDIR/$ROOTNAME.pdf"
+          echo "Looking for PDF at: $PDF_PATH"
+          if [ -f "$PDF_PATH" ]; then
+            mv "$PDF_PATH" 01_site/thesis/main.pdf
+          elif [ -f "${ROOTNAME}.pdf" ]; then
+            # fallback if compilation produced thesis.pdf at repo root
+            mv "${ROOTNAME}.pdf" 01_site/thesis/main.pdf
+          elif [ -f main.pdf ]; then
+            # another fallback used previously
+            mv main.pdf 01_site/thesis/main.pdf
+          else
+            echo "PDF della tesi non trovato; la compilazione potrebbe essere fallita."
+            echo "Listing repo root:"
+            ls -la
+            echo "Listing $ROOTDIR:"
+            ls -la "$ROOTDIR" || true
+            exit 1
+          fi
+
+          
       - name: Create a simple index linking the PDF
         run: |
           mkdir -p 01_site
