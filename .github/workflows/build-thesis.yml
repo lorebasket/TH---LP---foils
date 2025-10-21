@@ -89,3 +89,6 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
+
+      - name: Print LaTeX log
+        run: cat 00_drafting/thesis.log || true
